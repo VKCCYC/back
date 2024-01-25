@@ -6,9 +6,12 @@ import routeUsers from './routes/users.js'
 import routeProducts from './routes/products.js'
 import routeOrders from './routes/orders.js'
 import { StatusCodes } from 'http-status-codes'
+import mongoSanitize from 'express-mongo-sanitize'
 import './passport/passport.js'
 
 const app = express()
+
+app.use(mongoSanitize())
 
 /* 新的東西 設定請求 */
 app.use(cors({
@@ -68,5 +71,12 @@ app.all('*', (req, res) => {
 app.listen(process.env.PORT || 4000, async () => {
   console.log('伺服器啟動')
   await mongoose.connect(process.env.DB_URL)
+  /*
+    具体来说，当设置 sanitizeFilter 为 true 时，Mongoose 会在查询和返回文档时过滤掉敏感字段。
+    这通常包括在模型定义中标记为敏感或私有的字段。通过启用过滤器，你可以确保这些字段的值在查询结果和文档返回中被隐藏或过滤掉。
+    这对于在查询数据库时控制敏感数据的可见性是有用的，特别是在涉及用户隐私和安全性的应用程序中。
+    请注意，确切的行为可能取决于 Mongoose 版本，因此建议查阅相关版本的文档以获取详细信息。
+  */
+  mongoose.set('sanitizeFilter', true)
   console.log('資料庫連線成功')
 })
